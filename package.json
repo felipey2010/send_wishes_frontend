@@ -1,5 +1,5 @@
 {
-  "name": "boilerplate_card",
+  "name": "christmas-vibe",
   "version": "0.1.0",
   "private": true,
   "dependencies": {
@@ -21,7 +21,8 @@
     "web-vitals": "^0.2.4"
   },
   "engines": {
-    "node": "12.18.4"
+    "node": "12.18.4",
+    "npm": "6.14.6"
   },
   "scripts": {
     "start": "react-scripts start",

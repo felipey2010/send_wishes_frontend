@@ -9,7 +9,7 @@ export default function CreatePost({ modal, close, getCards }) {
     user: "",
     message: "",
   });
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const { enqueueSnackbar } = useSnackbar();
 
   const showSuccessMessage = () => {
     enqueueSnackbar("Card Added");

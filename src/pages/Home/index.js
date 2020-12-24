@@ -76,7 +76,8 @@ export default function Home() {
                       />
                     </Grid>
                   );
-                } else return <></>;
+                } else {
+                }
               })}
             </>
           )}
