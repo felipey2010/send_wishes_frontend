@@ -29,19 +29,19 @@ export default function CreatePost({ modal, close, getCards }) {
     axios
       .post(apiPost, params)
       .then(res => {
-        close();
-        showSuccessMessage();
         setValues({
           user: "",
           message: "",
         });
+        close();
+        showSuccessMessage();
+        getCards();
       })
       .catch(error => {
         close();
         showFailureMessage();
         console.log(error);
       });
-    getCards();
   }
 
   function handlePost() {
