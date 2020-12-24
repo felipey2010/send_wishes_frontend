@@ -2,7 +2,6 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Card from "../../components/Card";
 import FloatingButton from "../../components/FloatingButton";
-import bg from "../../images/bg.jpeg";
 import Grid from "@material-ui/core/Grid";
 import { makeStyles } from "@material-ui/core/styles";
 
