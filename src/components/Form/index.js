@@ -52,7 +52,7 @@ const ValidationTextField = withStyles({
 
 const useStyles = makeStyles(theme => ({
   paper: {
-    marginTop: theme.spacing(8),
+    marginTop: theme.spacing(3),
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -61,9 +61,17 @@ const useStyles = makeStyles(theme => ({
     width: "100%", // Fix IE 11 issue.
     marginTop: theme.spacing(1),
   },
+  error: {
+    color: "#fff",
+  },
 }));
 
-export default function CreateMessage({ values, setValues }) {
+export default function CreateMessage({
+  values,
+  setValues,
+  usernameError,
+  msgError,
+}) {
   const classes = useStyles();
 
   const handleTextChange = prop => event => {
@@ -76,38 +84,44 @@ export default function CreateMessage({ values, setValues }) {
       <div className={classes.paper}>
         <form className={classes.form} noValidate>
           <ThemeProvider theme={theme}>
-            <ValidationTextField
-              className={classes.margin}
-              variant="outlined"
-              margin="normal"
-              required
-              autoComplete="off"
-              fullWidth
-              id="name"
-              label="Your Name"
-              name="name"
-              autoFocus
-              value={values.user}
-              onChange={handleTextChange("user")}
-            />
+            <div>
+              <ValidationTextField
+                className={classes.margin}
+                variant="outlined"
+                margin="normal"
+                required
+                autoComplete="off"
+                fullWidth
+                id="name"
+                label="Your Name"
+                name="name"
+                autoFocus
+                value={values.user}
+                onChange={handleTextChange("user")}
+              />
+              <h5>{usernameError}</h5>
+            </div>
           </ThemeProvider>
           <ThemeProvider theme={theme}>
-            <ValidationTextField
-              className={classes.margin}
-              variant="outlined"
-              margin="normal"
-              required
-              autoComplete="off"
-              fullWidth
-              name="message"
-              label="Your Message"
-              type="text"
-              id="standard-multiline-flexible"
-              multiline
-              rowsMax={3}
-              value={values.message}
-              onChange={handleTextChange("message")}
-            />
+            <div>
+              <ValidationTextField
+                className={classes.margin}
+                variant="outlined"
+                margin="normal"
+                required
+                autoComplete="off"
+                fullWidth
+                name="message"
+                label="Your Message"
+                type="text"
+                id="standard-multiline-flexible"
+                multiline
+                rowsMax={3}
+                value={values.message}
+                onChange={handleTextChange("message")}
+              />
+              <h5>{msgError}</h5>
+            </div>
           </ThemeProvider>
         </form>
       </div>

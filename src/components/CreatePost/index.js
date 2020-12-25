@@ -9,7 +9,10 @@ export default function CreatePost({ modal, close, getCards }) {
     user: "",
     message: "",
   });
-  const { enqueueSnackbar } = useSnackbar();
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+
+  const [usernameError, setUserNameError] = useState("");
+  const [msgError, setMsgError] = useState("");
 
   const showSuccessMessage = () => {
     enqueueSnackbar("Card Added");
@@ -45,8 +48,19 @@ export default function CreatePost({ modal, close, getCards }) {
   }
 
   function handlePost() {
-    if (values.user.length > 2 && values.message.length > 5) {
+    if (values.user.length >= 3 && values.message.length >= 6) {
       AddCard();
+    } else {
+      if (values.user.length <= 2) {
+        setUserNameError("Name must be more than 2 characters");
+      } else {
+        setUserNameError("");
+      }
+      if (values.message.length <= 5) {
+        setMsgError("Message must be more than 5 characters");
+      } else {
+        setMsgError("");
+      }
     }
   }
 
@@ -68,7 +82,12 @@ export default function CreatePost({ modal, close, getCards }) {
           <div className="modal-body">
             <h4>Welcome, Friend</h4>
             <p>Keep your message simple and clean for the public</p>
-            <MessageForm values={values} setValues={setValues} />
+            <MessageForm
+              values={values}
+              setValues={setValues}
+              usernameError={usernameError}
+              msgError={msgError}
+            />
           </div>
           <div className="modal-footer">
             <button className="btn-cancel" onClick={handlePost}>
