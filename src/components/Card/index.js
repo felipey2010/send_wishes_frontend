@@ -1,24 +1,76 @@
 import React, { useState, useEffect } from "react";
 import "./card.css";
 import colorData from "../../data/colors.json";
+import CreateIcon from "@material-ui/icons/Create";
+import DeleteIcon from "@material-ui/icons/Delete";
+import axios from "axios";
+import ActionComponent from "./components/ActionComponent";
+import { useSnackbar } from "notistack";
 
-export default function Card({ title, body }) {
+export default function Card({ card, getCards }) {
   const max_msg = 120;
   const [bgColor, setBGColor] = useState(0);
   const [show, setShow] = useState(true);
   const [btnActivated, setBtnActivated] = useState(false);
+  const [signedIn, setSignedIn] = useState(false);
+  const [open, setOpen] = useState(false);
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   function handleShowMore() {
     setShow(!show);
   }
+
+  const handleOpen = () => {
+    setOpen(true);
+  };
 
   async function getColor() {
     let randNum = Math.floor(Math.random() * colorData.length);
     setBGColor(randNum);
   }
 
+  async function checkAdmin() {
+    const token = localStorage.getItem("token");
+    if (token !== null) {
+      axios
+        .post("admin/verifyToken/" + token)
+        .then(result => {
+          if (result.data.success) {
+            setSignedIn(true);
+          } else {
+            setSignedIn(false);
+          }
+        })
+        .catch(error => {
+          setSignedIn(false);
+          console.log(error);
+        });
+    } else {
+      setSignedIn(false);
+    }
+  }
+
+  const handleDelete = () => {
+    closeSnackbar();
+    axios
+      .delete("cards/" + card._id)
+      .then(result => {
+        if (result.data.success) {
+          enqueueSnackbar("Card deleted", { variant: "success" });
+          getCards();
+        } else {
+          enqueueSnackbar("Failed to delete ", { variant: "error" });
+        }
+      })
+      .catch(error => {
+        enqueueSnackbar("Error Occurred", { variant: "error" });
+        console.log(error);
+      });
+  };
+
   useEffect(() => {
-    if (body.length > max_msg) {
+    checkAdmin();
+    if (card.message.length > max_msg) {
       setBtnActivated(true);
     }
     getColor();
@@ -28,28 +80,31 @@ export default function Card({ title, body }) {
     <div
       className="card-container"
       style={{ background: `${colorData[bgColor].hex}` }}>
-      {/* <div className="image-container">
-        <img src={imageURL} alt="image" />
-      </div> */}
       <div className="card-content">
         <div className="card-title">
-          <h3>{title}</h3>
+          <h3>{card.userName}</h3>
+          {signedIn && (
+            <div className="action-buttons">
+              <CreateIcon className="actionBtn" onClick={handleOpen} />
+              <DeleteIcon className="actionBtn" onClick={handleDelete} />
+            </div>
+          )}
         </div>
         <div className="line">
           <hr />
         </div>
         <div className="card-body">
-          {body.length > max_msg ? (
+          {card.message.length > max_msg ? (
             <div className="card-body">
               {show ? (
-                <p>{`${body.substring(0, max_msg)}...`}</p>
+                <p>{`${card.message.substring(0, max_msg)}...`}</p>
               ) : (
-                <p>{body}</p>
+                <p>{card.message}</p>
               )}
             </div>
           ) : (
             <div className="card-body">
-              <p>{body}</p>
+              <p>{card.message}</p>
             </div>
           )}
         </div>
@@ -60,6 +115,14 @@ export default function Card({ title, body }) {
             {show ? "Show more" : "Show less"}
           </button>
         </div>
+      )}
+      {open && (
+        <ActionComponent
+          card={card}
+          open={open}
+          setOpen={setOpen}
+          getCards={getCards}
+        />
       )}
     </div>
   );

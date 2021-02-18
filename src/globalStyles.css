@@ -10,6 +10,8 @@ body {
     url(./images/bg.jpeg);
   background-attachment: fixed;
   height: 100vh;
+  overflow-x: hidden;
+  overflow-y: auto;
   background-position: center;
   background-repeat: no-repeat;
   background-size: cover;

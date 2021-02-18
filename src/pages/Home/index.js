@@ -1,18 +1,25 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
-import Card from "../../components/Card";
-import FloatingButton from "../../components/FloatingButton";
+import YearsComponent from "../../components/YearCard";
+import LoginButton from "../../components/LoginComponent";
 import Grid from "@material-ui/core/Grid";
 import { makeStyles } from "@material-ui/core/styles";
+import Container from "@material-ui/core/Container";
 
 const useStyles = makeStyles(theme => ({
-  root: {
-    paddingTop: 10,
-    paddingLeft: 10,
-    paddingRight: 10,
-    flexGrow: 1,
-    width: "100%",
-    overflowX: "hidden",
+  container: {
+    padding: theme.spacing(1),
+    display: "flex",
+    flexWrap: "wrap",
+    flexDirection: "row",
+  },
+  cardGrid: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(8),
+    paddingLeft: 0,
+    paddingRight: 0,
+    marginLeft: theme.spacing(2),
+    marginRight: theme.spacing(2),
   },
   paper: {
     padding: theme.spacing(1),
@@ -22,68 +29,76 @@ const useStyles = makeStyles(theme => ({
 
 export default function Home() {
   const classes = useStyles();
-  const [card, setCard] = useState([]);
-  // const [imageURL, setImageURL] = useState("");
-  // let randNumber = 250;
-  const apiPost = "https://messages-cards.herokuapp.com/api/cards";
+  const [years, setYears] = useState([]);
+  const [signedIn, setSignedIn] = useState(false);
+  const [admin, setAdmin] = useState([]);
 
-  useEffect(() => {
+  const apiPost = "years";
+
+  function getYears() {
     axios
       .get(apiPost)
       .then(res => {
-        setCard(res.data);
-      })
-      .catch(error => {
-        console.log(error);
-      });
-  }, []);
-
-  // async function getPhoto() {
-  //   getNum();
-  //   console.log(randNumber);
-  //   setImageURL("https://picsum.photos/" + randNumber);
-  // }
-
-  // async function getNum() {
-  //   let randNum = Math.floor(Math.random() * (500 - 250) + 250);
-  //   randNumber = randNum;
-  // }
-
-  async function getCards() {
-    axios
-      .get(apiPost)
-      .then(res => {
-        setCard(res.data);
+        setYears(res.data);
       })
       .catch(error => {
         console.log(error);
       });
   }
+
+  //Get data from local storage
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (token == null) {
+      setSignedIn(false);
+    } else {
+      setSignedIn(true);
+    }
+    getYears();
+  }, []);
+
+  // async function getCards() {
+  //   axios
+  //     .get(apiPost)
+  //     .then(res => {
+  //       setCard(res.data);
+  //     })
+  //     .catch(error => {
+  //       console.log(error);
+  //     });
+  // }
+
   return (
-    <div>
-      <div className={classes.root}>
-        <Grid container spacing={3} direction="row">
-          {card && (
-            <>
-              {card.map((item, index) => {
-                if (item.isPosted) {
+    <>
+      <div className={classes.container}>
+        <Container className={classes.cardGrid} maxWidth="xs">
+          <Grid container spacing={6}>
+            {years && (
+              <>
+                {years.map((item, index) => {
                   return (
-                    <Grid key={index} item xs>
-                      <Card
-                        title={item.userName}
-                        // imageURL={imageURL}
-                        body={item.message}
+                    <Grid item xs={12} sm={6} md={4} key={index}>
+                      <YearsComponent
+                        year={item.year}
+                        signedIn={signedIn}
+                        id={item._id}
+                        getYears={getYears}
                       />
                     </Grid>
                   );
-                } else {
-                }
-              })}
-            </>
-          )}
-        </Grid>
+                })}
+              </>
+            )}
+          </Grid>
+        </Container>
       </div>
-      <FloatingButton getCards={getCards} />
-    </div>
+      <LoginButton
+        signedIn={signedIn}
+        setSignedIn={setSignedIn}
+        admin={admin}
+        setAdmin={setAdmin}
+        getYears={getYears}
+      />
+    </>
   );
 }

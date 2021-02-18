@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./modal.css";
 import MessageForm from "../Form";
 import axios from "axios";
@@ -13,6 +13,7 @@ export default function CreatePost({ modal, close, getCards }) {
 
   const [usernameError, setUserNameError] = useState("");
   const [msgError, setMsgError] = useState("");
+  const [currentYear, setCurrentYear] = useState("");
 
   const showSuccessMessage = () => {
     enqueueSnackbar("Card Added");
@@ -22,26 +23,31 @@ export default function CreatePost({ modal, close, getCards }) {
     enqueueSnackbar("Failed to Add Card");
   };
 
-  const apiPost = "https://messages-cards.herokuapp.com/api/cards";
+  const apiPost = "cards";
 
   async function AddCard() {
+    closeSnackbar();
     const params = {
       userName: values.user,
       message: values.message,
+      year: currentYear,
     };
     axios
       .post(apiPost, params)
       .then(res => {
-        setValues({
-          user: "",
-          message: "",
-        });
-        close();
-        showSuccessMessage();
-        getCards();
+        if (res.data.success) {
+          setValues({
+            user: "",
+            message: "",
+          });
+          close();
+          showSuccessMessage();
+          getCards();
+        } else {
+          showFailureMessage();
+        }
       })
       .catch(error => {
-        close();
         showFailureMessage();
         console.log(error);
       });
@@ -63,6 +69,12 @@ export default function CreatePost({ modal, close, getCards }) {
       }
     }
   }
+
+  useEffect(() => {
+    let dateYear = new Date().getFullYear();
+    dateYear = dateYear.toString();
+    setCurrentYear(dateYear);
+  });
 
   return (
     <div className="modal-container">

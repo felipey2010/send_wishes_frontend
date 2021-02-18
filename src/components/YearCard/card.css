@@ -31,20 +31,6 @@ p {
 
 .card-title {
   margin-bottom: 0.5rem;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-}
-
-.action-buttons {
-  display: flex;
-  flex-direction: row;
-  flex-wrap: nowrap;
-  justify-content: end;
-}
-
-.actionBtn {
-  cursor: pointer;
 }
 
 .btn {
@@ -62,7 +48,6 @@ p {
   font-weight: bold;
   text-decoration: none;
   color: black;
-  cursor: pointer;
 }
 
 .btn button:hover {
@@ -75,7 +60,7 @@ hr {
   border: none;
   height: 1px;
   color: #333;
-  background-color: #3333334d;
+  background-color: #333;
   width: 100%;
 }
 
