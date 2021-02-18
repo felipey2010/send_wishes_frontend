@@ -1,7 +1,7 @@
 # send_wishes_frontend
 A basic site where you can post your message to the public.
 
-The project's backend is [here](https://github.com/felipey2010/backend_simple_card.git).
+The project is hosted [here](https://send-wishes.herokuapp.com/) on heroku and the backend can be found [here](https://github.com/felipey2010/backend_simple_card.git).
 
 This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
 
