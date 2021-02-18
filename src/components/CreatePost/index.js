@@ -1,18 +1,152 @@
 import React, { useState, useEffect } from "react";
-import "./modal.css";
-import MessageForm from "../Form";
 import axios from "axios";
 import { useSnackbar } from "notistack";
+import { makeStyles } from "@material-ui/core/styles";
+import Modal from "@material-ui/core/Modal";
+import CloseIcon from "@material-ui/icons/Close";
+import Divider from "@material-ui/core/Divider";
+import Typography from "@material-ui/core/Typography";
+import TextField from "@material-ui/core/TextField";
+import Button from "@material-ui/core/Button";
 
-export default function CreatePost({ modal, close, getCards }) {
+const useStyles = makeStyles(theme => ({
+  root: {
+    "& > *": {
+      position: "fixed",
+      bottom: theme.spacing(2),
+      right: theme.spacing(2),
+      margin: theme.spacing(1),
+      backgroundColor: "#e0920e",
+      borderRadius: "50%",
+
+      "&:hover": {
+        backgroundColor: "#9c6302",
+        transition: "0.2s ease-out",
+      },
+    },
+  },
+  fab: {
+    backgroundColor: "#e0920e",
+    "&:hover": {
+      backgroundColor: "#9c6302",
+      transition: "0.2s ease-out",
+    },
+  },
+  paper: {
+    position: "absolute",
+    width: "50%",
+    height: "60%",
+    backgroundColor: theme.palette.background.paper,
+    border: "2px solid #000",
+    boxShadow: theme.shadows[5],
+    padding: theme.spacing(2, 4, 3),
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "center",
+    top: "50%",
+    left: "50%",
+    transform: "translate(-50%, -50%)",
+  },
+  container: {
+    position: "absolute",
+    height: "55%",
+    display: "flex",
+    flexDirection: "column",
+    top: 65,
+    left: 25,
+    right: 25,
+    padding: 0,
+  },
+  header: {
+    position: "absolute",
+    top: 20,
+    left: 20,
+    right: 20,
+    width: "60vw",
+    height: 32,
+    padding: 0,
+  },
+  closeButton: {
+    cursor: "pointer",
+    position: "absolute",
+    top: 10,
+    right: 20,
+    width: 32,
+    height: 32,
+    padding: 0,
+    color: "#847e7e",
+    transform: "scale(0.8)",
+    "&:hover": {
+      transform: "scale(1)",
+      color: "#000000",
+    },
+  },
+  headerTitle: {
+    position: "absolute",
+    top: 10,
+    left: 25,
+    height: 32,
+    padding: 0,
+  },
+  divider: {
+    position: "absolute",
+    top: 50,
+    left: 10,
+    right: 10,
+    padding: 0,
+  },
+  errors: {
+    display: "flex",
+    justifyContent: "center",
+    fontSize: 14,
+    color: "#f92b2b",
+  },
+  text: {
+    marginBottom: 8,
+  },
+  buttonDiv: {
+    position: "absolute",
+    bottom: "2%",
+    right: "4%",
+    padding: 3,
+    backgroundColor: "#b37915",
+    borderRadius: 5,
+  },
+  button: {
+    color: "#000",
+    fontWeight: 600,
+    "&:hover": {
+      transform: "scale(1.1)",
+      transition: "transform 0.1s",
+    },
+  },
+  rowDiv: {
+    display: "flex",
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexWrap: "wrap",
+  },
+  message: {
+    display: "flex",
+    flexWrap: "wrap",
+    justifyContent: "center",
+  },
+  welcome: {
+    display: "flex",
+    justifyContent: "center",
+  },
+}));
+
+export default function CreatePost({ open, setOpen, getCards }) {
+  const classes = useStyles();
   const [values, setValues] = useState({
-    user: "",
+    name: "",
     message: "",
   });
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
-
-  const [usernameError, setUserNameError] = useState("");
-  const [msgError, setMsgError] = useState("");
+  const [errors, setErrors] = useState("");
   const [currentYear, setCurrentYear] = useState("");
 
   const showSuccessMessage = () => {
@@ -23,24 +157,28 @@ export default function CreatePost({ modal, close, getCards }) {
     enqueueSnackbar("Failed to Add Card");
   };
 
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   const apiPost = "cards";
 
   async function AddCard() {
     closeSnackbar();
     const params = {
-      userName: values.user,
+      userName: values.name,
       message: values.message,
       year: currentYear,
     };
     axios
       .post(apiPost, params)
-      .then(res => {
-        if (res.data.success) {
+      .then(result => {
+        if (result.data.success) {
           setValues({
-            user: "",
+            name: "",
             message: "",
           });
-          close();
+          handleClose();
           showSuccessMessage();
           getCards();
         } else {
@@ -54,18 +192,11 @@ export default function CreatePost({ modal, close, getCards }) {
   }
 
   function handlePost() {
-    if (values.user.length >= 3 && values.message.length >= 6) {
+    if (values.name.length >= 3 && values.message.length >= 6) {
       AddCard();
     } else {
-      if (values.user.length <= 2) {
-        setUserNameError("Name must be more than 2 characters");
-      } else {
-        setUserNameError("");
-      }
-      if (values.message.length <= 5) {
-        setMsgError("Message must be more than 5 characters");
-      } else {
-        setMsgError("");
+      if (values.name.length <= 2 || values.message.length <= 5) {
+        setErrors("Name must be > 3 letters and message > 6 letters");
       }
     }
   }
@@ -76,38 +207,87 @@ export default function CreatePost({ modal, close, getCards }) {
     setCurrentYear(dateYear);
   });
 
-  return (
-    <div className="modal-container">
-      <div
-        className="modal-wrapper"
-        style={{
-          transform: modal ? "translateY(0vh)" : "translateY(-100vh)",
-          opacity: modal ? 1 : 0,
-        }}>
-        <div className="modal-header">
-          <p>Create a Message</p>
-          <span className="close-modal-btn" onClick={close}>
-            X
-          </span>
+  const handleChange = event => {
+    setValues({
+      ...values,
+      [event.target.name]: event.target.value,
+    });
+  };
+
+  const body = (
+    <div className={classes.paper}>
+      <div clasName={classes.header}>
+        <Typography
+          component="h1"
+          variant="h6"
+          color="inherit"
+          id="simple-modal-title"
+          noWrap
+          className={classes.headerTitle}>
+          Create A Message
+        </Typography>
+        <CloseIcon className={classes.closeButton} onClick={handleClose} />
+      </div>
+      <div className={classes.divider}>
+        <Divider />
+      </div>
+      <div id="simple-modal-description" className={classes.container}>
+        <div className={classes.message}>
+          <Typography
+            component="h1"
+            variant="h6"
+            color="inherit"
+            id="simple-modal-title"
+            className={classes.welcome}>
+            Welcome...Please keep your message simple and clean for the public
+          </Typography>
         </div>
-        <div className="modal-content">
-          <div className="modal-body">
-            <h4>Welcome, Friend</h4>
-            <p>Keep your message simple and clean for the public</p>
-            <MessageForm
-              values={values}
-              setValues={setValues}
-              usernameError={usernameError}
-              msgError={msgError}
-            />
-          </div>
-          <div className="modal-footer">
-            <button className="btn-cancel" onClick={handlePost}>
-              Post
-            </button>
-          </div>
+        <div>
+          <p className={classes.errors}>{errors}</p>
         </div>
+        <TextField
+          id="standard-basic-email"
+          className={classes.text}
+          required
+          type="text"
+          name="name"
+          label="Your Name"
+          value={values.name}
+          onChange={handleChange}
+        />
+        <TextField
+          id="standard-basic-password"
+          className={classes.text}
+          required
+          name="message"
+          label="Your Message"
+          type="text"
+          autoComplete="off"
+          multiline
+          rowsMax={3}
+          value={values.message}
+          onChange={handleChange}
+        />
+      </div>
+      <div className={classes.buttonDiv}>
+        <Button
+          size="small"
+          color="primary"
+          className={classes.button}
+          onClick={handlePost}>
+          Post
+        </Button>
       </div>
     </div>
+  );
+
+  return (
+    <Modal
+      open={open}
+      onClose={handleClose}
+      aria-labelledby="simple-modal-title"
+      aria-describedby="simple-modal-description">
+      {body}
+    </Modal>
   );
 }

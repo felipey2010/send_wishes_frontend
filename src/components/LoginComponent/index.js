@@ -43,7 +43,7 @@ const useStyles = makeStyles(theme => ({
   paper: {
     position: "absolute",
     width: "40vw",
-    height: "40vh",
+    height: "60%",
     backgroundColor: theme.palette.background.paper,
     border: "2px solid #000",
     boxShadow: theme.shadows[5],
@@ -58,7 +58,7 @@ const useStyles = makeStyles(theme => ({
   },
   container: {
     position: "absolute",
-    height: "30vh",
+    height: "50%",
     display: "flex",
     flexDirection: "column",
     top: 65,
@@ -113,11 +113,10 @@ const useStyles = makeStyles(theme => ({
   text: {
     marginBottom: 8,
   },
-  rowText: {},
   buttonDiv: {
     position: "absolute",
-    bottom: 10,
-    right: 0,
+    bottom: "2%",
+    right: "4%",
     padding: 3,
     backgroundColor: "#b37915",
     borderRadius: 5,
@@ -153,10 +152,8 @@ export default function LoginComponent({
   const [yearErrors, setYearErrors] = useState("");
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [createYear, setCreateYear] = useState("");
-  const [values, setValues] = useState({
-    email: "",
-    password: "",
-  });
+  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("");
 
   const handleClose = () => {
     setOpen(false);
@@ -171,17 +168,22 @@ export default function LoginComponent({
   };
 
   const handleChange = event => {
-    setValues({
-      ...values,
-      [event.target.name]: event.target.value,
-    });
+    if (event.target.value.includes(" ")) {
+      return;
+    } else {
+      setEmail(event.target.value);
+    }
   };
 
+  function handleEnterKey(e) {
+    if (e === "Enter") {
+      handleSubmit();
+    }
+  }
+
   const clearFields = () => {
-    setValues({
-      email: "",
-      password: "",
-    });
+    setEmail("");
+    setPassword("");
   };
 
   async function checkData(data) {
@@ -212,13 +214,13 @@ export default function LoginComponent({
   }
 
   const handleSubmit = () => {
-    if (values.email === "" || values.password === "") {
+    if (email === "" || password === "") {
       setErrors("Please fill all the camps");
     } else {
       setErrors("");
       const data = {
-        email: values.email,
-        password: values.password,
+        email: email,
+        password: password,
       };
 
       checkData(data);
@@ -226,8 +228,6 @@ export default function LoginComponent({
   };
 
   const handleLogout = () => {
-    handleClose();
-
     closeSnackbar();
 
     localStorage.clear();
@@ -299,9 +299,10 @@ export default function LoginComponent({
           id="standard-basic-email"
           className={classes.text}
           required
-          name="email"
+          type="email"
+          name=""
           label="E-mail"
-          value={values.email}
+          value={email}
           onChange={handleChange}
         />
         <TextField
@@ -312,8 +313,9 @@ export default function LoginComponent({
           label="Password"
           type={passwordVisible ? "text" : "password"}
           autoComplete="off"
-          value={values.password}
-          onChange={handleChange}
+          onKeyDown={e => handleEnterKey(e.key)}
+          value={password}
+          onChange={e => setPassword(e.target.value.trim())}
           InputProps={{
             endAdornment: (
               <InputAdornment position="end">
@@ -327,15 +329,15 @@ export default function LoginComponent({
             ),
           }}
         />
-        <div className={classes.buttonDiv}>
-          <Button
-            size="small"
-            color="primary"
-            className={classes.button}
-            onClick={handleSubmit}>
-            Enter
-          </Button>
-        </div>
+      </div>
+      <div className={classes.buttonDiv}>
+        <Button
+          size="small"
+          color="primary"
+          className={classes.button}
+          onClick={handleSubmit}>
+          Enter
+        </Button>
       </div>
     </div>
   );
