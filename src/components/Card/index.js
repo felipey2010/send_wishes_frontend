@@ -3,9 +3,12 @@ import "./card.css";
 import colorData from "../../data/colors.json";
 import CreateIcon from "@material-ui/icons/Create";
 import DeleteIcon from "@material-ui/icons/Delete";
+import ErrorIcon from "@material-ui/icons/Error";
 import axios from "axios";
 import ActionComponent from "./components/ActionComponent";
+import ReportComponent from "./components/ReportDrawer";
 import { useSnackbar } from "notistack";
+import Tooltip from "@material-ui/core/Tooltip";
 
 export default function Card({ card, getCards }) {
   const max_msg = 120;
@@ -14,6 +17,7 @@ export default function Card({ card, getCards }) {
   const [btnActivated, setBtnActivated] = useState(false);
   const [signedIn, setSignedIn] = useState(false);
   const [open, setOpen] = useState(false);
+  const [openReport, setOpenReport] = useState(false);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
 
   function handleShowMore() {
@@ -22,6 +26,10 @@ export default function Card({ card, getCards }) {
 
   const handleOpen = () => {
     setOpen(true);
+  };
+
+  const handleOpenReport = () => {
+    setOpenReport(true);
   };
 
   async function getColor() {
@@ -83,10 +91,16 @@ export default function Card({ card, getCards }) {
       <div className="card-content">
         <div className="card-title">
           <h3>{card.userName}</h3>
-          {signedIn && (
+          {signedIn ? (
             <div className="action-buttons">
               <CreateIcon className="actionBtn" onClick={handleOpen} />
               <DeleteIcon className="actionBtn" onClick={handleDelete} />
+            </div>
+          ) : (
+            <div className="action-buttons">
+              <Tooltip title="Report Message" placement="top">
+                <ErrorIcon className="actionBtn" onClick={handleOpenReport} />
+              </Tooltip>
             </div>
           )}
         </div>
@@ -122,6 +136,13 @@ export default function Card({ card, getCards }) {
           open={open}
           setOpen={setOpen}
           getCards={getCards}
+        />
+      )}
+      {openReport && (
+        <ReportComponent
+          card={card}
+          open={openReport}
+          setOpen={setOpenReport}
         />
       )}
     </div>

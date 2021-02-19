@@ -66,7 +66,7 @@ const useStyles = makeStyles(theme => ({
     top: 20,
     left: 20,
     right: 20,
-    width: "60vw",
+    width: "100%",
     height: 32,
     padding: 0,
   },
@@ -129,7 +129,10 @@ const useStyles = makeStyles(theme => ({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    flexWrap: "wrap",
+    [theme.breakpoints.down("xs")]: {
+      flexDirection: "column",
+      alignItems: "end",
+    },
   },
   message: {
     display: "flex",

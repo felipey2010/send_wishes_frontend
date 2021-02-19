@@ -40,7 +40,7 @@ const useStyles = makeStyles(theme => ({
   paper: {
     position: "absolute",
     width: "50%",
-    height: "60%",
+    height: "65%",
     backgroundColor: theme.palette.background.paper,
     border: "2px solid #000",
     boxShadow: theme.shadows[5],
@@ -58,7 +58,7 @@ const useStyles = makeStyles(theme => ({
   },
   container: {
     position: "absolute",
-    height: "55%",
+    height: "60%",
     display: "flex",
     flexDirection: "column",
     top: 65,
@@ -134,24 +134,24 @@ const useStyles = makeStyles(theme => ({
   },
 }));
 
-export default function ActionComponent({ open, setOpen, card, getCards }) {
+export default function ReportDrawer({ open, setOpen, card }) {
   const classes = useStyles();
   const [errors, setErrors] = useState("");
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [values, setValues] = useState({
     name: card.userName,
     message: card.message,
+    year: card.year,
+    id: card.id,
   });
+  const [reason, setReason] = useState("");
 
   const handleClose = () => {
     setOpen(false);
   };
 
-  const handleChange = event => {
-    setValues({
-      ...values,
-      [event.target.name]: event.target.value,
-    });
+  const handleReasonChange = event => {
+    setReason(event.target.value);
   };
 
   const clearFields = () => {
@@ -161,43 +161,43 @@ export default function ActionComponent({ open, setOpen, card, getCards }) {
     });
   };
 
-  async function EditData(data) {
-    closeSnackbar();
-    if (data !== null) {
-      axios
-        .put("cards/" + card._id, data)
-        .then(result => {
-          if (result.data.success) {
-            setErrors("");
-            handleClose();
-            clearFields();
-            enqueueSnackbar("Card Updated", { variant: "success" });
-            getCards();
-          } else {
-            enqueueSnackbar("An Error Occurred", { variant: "error" });
-          }
-        })
-        .catch(error => {
-          enqueueSnackbar("Failure to update", { variant: "error" });
-          console.log(error);
-        });
-    }
-  }
+  // async function EditData(data) {
+  //   closeSnackbar();
+  //   if (data !== null) {
+  //     axios
+  //       .put("cards/" + card._id, data)
+  //       .then(result => {
+  //         if (result.data.success) {
+  //           setErrors("");
+  //           handleClose();
+  //           clearFields();
+  //           enqueueSnackbar("Card Updated", { variant: "success" });
+  //           getCards();
+  //         } else {
+  //           enqueueSnackbar("An Error Occurred", { variant: "error" });
+  //         }
+  //       })
+  //       .catch(error => {
+  //         enqueueSnackbar("Failure to update", { variant: "error" });
+  //         console.log(error);
+  //       });
+  //   }
+  // }
 
-  const handleUpdate = () => {
-    if (values.name === "" || values.message === "") {
-      setErrors("Please fill all the camps");
-    } else {
-      setErrors("");
-      const data = {
-        userName: values.name,
-        message: values.message,
-        year: card.year,
-      };
+  // const handleUpdate = () => {
+  //   if (values.name === "" || values.message === "") {
+  //     setErrors("Please fill all the camps");
+  //   } else {
+  //     setErrors("");
+  //     const data = {
+  //       userName: values.name,
+  //       message: values.message,
+  //       year: card.year,
+  //     };
 
-      EditData(data);
-    }
-  };
+  //     EditData(data);
+  //   }
+  // };
 
   const body = (
     <div className={classes.paper}>
@@ -209,7 +209,7 @@ export default function ActionComponent({ open, setOpen, card, getCards }) {
           id="simple-modal-title"
           noWrap
           className={classes.headerTitle}>
-          Edit Card
+          Report Message
         </Typography>
         <CloseIcon className={classes.closeButton} onClick={handleClose} />
       </div>
@@ -226,9 +226,9 @@ export default function ActionComponent({ open, setOpen, card, getCards }) {
           label="Name"
           rowsMax={2}
           multiline
+          disabled
           autoComplete="off"
           value={values.name}
-          onChange={handleChange}
         />
         <TextField
           id="standard-basic-message"
@@ -238,9 +238,21 @@ export default function ActionComponent({ open, setOpen, card, getCards }) {
           label="Message"
           rowsMax={4}
           multiline
+          disabled
           autoComplete="off"
           value={values.message}
-          onChange={handleChange}
+        />
+        <TextField
+          id="standard-basic-reason"
+          className={classes.text}
+          required
+          name="reason"
+          label="Reason"
+          rowsMax={4}
+          multiline
+          autoComplete="off"
+          value={reason}
+          onChange={handleReasonChange}
         />
       </div>
       <div className={classes.buttonDiv}>
@@ -248,8 +260,9 @@ export default function ActionComponent({ open, setOpen, card, getCards }) {
           size="small"
           color="primary"
           className={classes.button}
-          onClick={handleUpdate}>
-          Update
+          // onClick={handleUpdate}
+        >
+          Send
         </Button>
       </div>
     </div>
