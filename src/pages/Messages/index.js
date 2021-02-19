@@ -74,6 +74,11 @@ const useStyles = makeStyles(theme => ({
     textDecoration: "none",
     color: "white",
   },
+  return: {
+    textDecoration: "none",
+    color: "red",
+    fontWeight: 600,
+  },
 }));
 
 const Messages = props => {
@@ -83,21 +88,11 @@ const Messages = props => {
   const [activateButton, setActivateButton] = useState(false);
   const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [admin, setAdmin] = useState([]);
+  const [showMessages, setShowMessages] = useState(false);
   const { year } = props.match.params;
   // const [count, setCount] = useState(0);
 
   const apiPost = "cards";
-
-  // function getCurrentYear() {
-  //   let dateYear = new Date().getFullYear();
-  //   dateYear = dateYear.toString();
-
-  //   if (year === dateYear) {
-  //     setActivateButton(true);
-  //   } else {
-  //     setActivateButton(false);
-  //   }
-  // }
 
   async function checkAdmin() {
     const token = localStorage.getItem("token");
@@ -126,12 +121,11 @@ const Messages = props => {
   const handleLogout = () => {
     closeSnackbar();
 
-    localStorage.clear();
-
     axios
       .post("admin/logout/" + admin.id)
       .then(result => {
         if (result.data.success) {
+          localStorage.clear();
           enqueueSnackbar("Logout Successful", { variant: "success" });
           window.location.reload(true);
         } else {
@@ -155,17 +149,10 @@ const Messages = props => {
       });
   }
 
-  // async function checkCards(number) {
-  //   let i = 0;
-  //   let aux = 0;
-  //   while (i < number) {
-  //     if (cards[i].year.toString() === year) {
-  //       aux = aux + 1;
-  //     }
-  //     i++;
-  //   }
-  //   setCount(aux);
-  // }
+  function isNumeric(num) {
+    num = "" + num; //coerce num to be a string
+    return !isNaN(num) && !isNaN(parseFloat(num));
+  }
 
   useEffect(() => {
     // getCurrentYear();
@@ -178,70 +165,96 @@ const Messages = props => {
       setActivateButton(false);
     }
 
+    if (isNumeric(year)) {
+      if (parseFloat(year) > parseFloat(dateYear)) {
+        setShowMessages(false);
+      } else {
+        setShowMessages(true);
+      }
+    } else {
+      setShowMessages(false);
+    }
     getCards();
     checkAdmin();
     // checkCards(Object.keys(cards).length);
   }, []);
 
-  return (
-    <>
-      <div className={classes.appBar}>
-        <AppBar position="fixed">
-          <Toolbar>
-            <Link to="/" className={classes.link}>
-              <IconButton
-                edge="start"
-                className={classes.menuButton}
-                color="inherit"
-                aria-label="menu">
-                <ArrowBackIosIcon />
-              </IconButton>
-            </Link>
-            <Typography variant="h6" className={classes.title}>
-              {year}
-            </Typography>
-            {signedIn && (
-              <Button color="inherit" onClick={handleLogout}>
-                Logout
-              </Button>
-            )}
-          </Toolbar>
-        </AppBar>
-      </div>
-      <div className={classes.container}>
-        <Container className={classes.cardGrid}>
-          <Grid container spacing={6}>
-            {/* {count === 0 ? ( */}
-            {/* // <>
-              //   <div className={classes.card}>
-              //     <Typography */}
-            {/* //       component="h1"
-              //       variant="h6"
-              //       color="inherit"
-              //       id="simple-modal-title">
-              //       No messages at the moment
-              //     </Typography>
-              //   </div>
-              // </> */}
-            <>
-              {cards.map((item, index) => {
-                if (item.year === year) {
-                  return (
-                    <Grid item xs={12} sm={6} md={3} key={index}>
-                      <Card card={item} getCards={getCards} />
-                    </Grid>
-                  );
-                } else {
-                  return <></>;
-                }
-              })}
-            </>
-          </Grid>
-        </Container>
-      </div>
-      {activateButton && <FloatingButton getCards={getCards} />}
-    </>
-  );
+  if (showMessages) {
+    return (
+      <>
+        <div className={classes.appBar}>
+          <AppBar position="fixed">
+            <Toolbar>
+              <Link to="/" className={classes.link}>
+                <IconButton
+                  edge="start"
+                  className={classes.menuButton}
+                  color="inherit"
+                  aria-label="menu">
+                  <ArrowBackIosIcon />
+                </IconButton>
+              </Link>
+              <Typography variant="h6" className={classes.title}>
+                {year}
+              </Typography>
+              {signedIn && (
+                <Button color="inherit" onClick={handleLogout}>
+                  Logout
+                </Button>
+              )}
+            </Toolbar>
+          </AppBar>
+        </div>
+        <div className={classes.container}>
+          <Container className={classes.cardGrid}>
+            <Grid container spacing={6}>
+              <>
+                {cards.map((item, index) => {
+                  if (item.year === year) {
+                    return (
+                      <Grid item xs={12} sm={6} md={3} key={index}>
+                        <Card card={item} getCards={getCards} />
+                      </Grid>
+                    );
+                  } else {
+                    return <></>;
+                  }
+                })}
+              </>
+            </Grid>
+          </Container>
+        </div>
+        {activateButton && <FloatingButton getCards={getCards} />}
+      </>
+    );
+  } else {
+    return (
+      <>
+        <div className={classes.container}>
+          <Container className={classes.cardGrid}>
+            <Grid container spacing={6}>
+              <div className={classes.card}>
+                <div>
+                  <Typography
+                    component="h1"
+                    variant="h6"
+                    color="inherit"
+                    id="simple-modal-title">
+                    "{year}" not found
+                  </Typography>
+                </div>
+                <div>
+                  <Link to="/" className={classes.link}>
+                    <Button className={classes.return}>Return</Button>
+                  </Link>
+                </div>
+              </div>
+            </Grid>
+          </Container>
+        </div>
+      </>
+    );
+  }
 };
 
 export default Messages;

@@ -47,6 +47,9 @@ const useStyles = makeStyles(theme => ({
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
+    [theme.breakpoints.down("xs")]: {
+      width: "70%",
+    },
   },
   container: {
     position: "absolute",
@@ -233,14 +236,16 @@ export default function CreatePost({ open, setOpen, getCards }) {
       </div>
       <div id="simple-modal-description" className={classes.container}>
         <div className={classes.message}>
-          <Typography
-            component="h1"
-            variant="h6"
-            color="inherit"
-            id="simple-modal-title"
-            className={classes.welcome}>
-            Welcome...Please keep your message simple and clean for the public
-          </Typography>
+          <div>
+            <Typography
+              component="h1"
+              variant="h6"
+              color="inherit"
+              id="simple-modal-title"
+              className={classes.welcome}>
+              Welcome...Please keep your message simple and clean for the public
+            </Typography>
+          </div>
         </div>
         <div>
           <p className={classes.errors}>{errors}</p>

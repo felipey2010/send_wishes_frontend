@@ -42,7 +42,7 @@ const useStyles = makeStyles(theme => ({
   },
   paper: {
     position: "absolute",
-    width: "40vw",
+    width: "50%",
     height: "60%",
     backgroundColor: theme.palette.background.paper,
     border: "2px solid #000",
@@ -55,6 +55,9 @@ const useStyles = makeStyles(theme => ({
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
+    [theme.breakpoints.down("xs")]: {
+      width: "70%",
+    },
   },
   container: {
     position: "absolute",
@@ -71,7 +74,7 @@ const useStyles = makeStyles(theme => ({
     top: 20,
     left: 20,
     right: 20,
-    width: "60vw",
+    width: "100%",
     height: 32,
     padding: 0,
   },
@@ -134,7 +137,10 @@ const useStyles = makeStyles(theme => ({
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    flexWrap: "wrap",
+    [theme.breakpoints.down("xs")]: {
+      flexDirection: "column",
+      alignItems: "end",
+    },
   },
 }));
 
@@ -230,12 +236,11 @@ export default function LoginComponent({
   const handleLogout = () => {
     closeSnackbar();
 
-    localStorage.clear();
-
     axios
       .post("admin/logout/" + admin.id)
       .then(result => {
         if (result.data.success) {
+          localStorage.clear();
           enqueueSnackbar("Logout Successful", { variant: "success" });
           window.location.reload(true);
         } else {
@@ -371,33 +376,37 @@ export default function LoginComponent({
               Create New Year
             </Typography>
           </div>
-          <TextField
-            id="standard-basic-year"
-            className={classes.text}
-            required
-            type="Number"
-            name="year"
-            label="Year"
-            value={createYear}
-            onChange={handleYear}
-          />
-          <Button
-            size="small"
-            color="primary"
-            className={classes.button}
-            onClick={handleCreateYear}>
-            Create
-          </Button>
+          <div>
+            <TextField
+              id="standard-basic-year"
+              className={classes.text}
+              required
+              type="Number"
+              name="year"
+              label="Year"
+              value={createYear}
+              onChange={handleYear}
+            />
+          </div>
+          <div>
+            <Button
+              size="small"
+              color="primary"
+              className={classes.button}
+              onClick={handleCreateYear}>
+              Create
+            </Button>
+          </div>
         </div>
-        <div className={classes.buttonDiv}>
-          <Button
-            size="small"
-            color="primary"
-            className={classes.button}
-            onClick={handleLogout}>
-            Logout
-          </Button>
-        </div>
+      </div>
+      <div className={classes.buttonDiv}>
+        <Button
+          size="small"
+          color="primary"
+          className={classes.button}
+          onClick={handleLogout}>
+          Logout
+        </Button>
       </div>
     </div>
   );

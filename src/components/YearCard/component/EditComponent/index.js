@@ -34,8 +34,8 @@ const useStyles = makeStyles(theme => ({
   },
   paper: {
     position: "absolute",
-    width: "40vw",
-    height: "30vh",
+    width: "50%",
+    height: "40%",
     backgroundColor: theme.palette.background.paper,
     border: "2px solid #000",
     boxShadow: theme.shadows[5],
@@ -47,10 +47,13 @@ const useStyles = makeStyles(theme => ({
     top: "50%",
     left: "50%",
     transform: "translate(-50%, -50%)",
+    [theme.breakpoints.down("xs")]: {
+      width: "60%",
+    },
   },
   container: {
     position: "absolute",
-    height: "30vh",
+    height: "40%",
     display: "flex",
     flexDirection: "column",
     top: 65,
@@ -63,7 +66,7 @@ const useStyles = makeStyles(theme => ({
     top: 20,
     left: 20,
     right: 20,
-    width: "60vw",
+    width: "100%",
     height: 32,
     padding: 0,
   },
@@ -128,6 +131,10 @@ const useStyles = makeStyles(theme => ({
     justifyContent: "space-between",
     alignItems: "center",
     flexWrap: "wrap",
+    [theme.breakpoints.down("xs")]: {
+      flexDirection: "column",
+      alignItems: "end",
+    },
   },
 }));
 
