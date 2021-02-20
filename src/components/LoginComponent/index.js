@@ -16,6 +16,14 @@ import IconButton from "@material-ui/core/IconButton";
 import Button from "@material-ui/core/Button";
 import { useSnackbar } from "notistack";
 import axios from "axios";
+import Table from "@material-ui/core/Table";
+import TableBody from "@material-ui/core/TableBody";
+import TableCell from "@material-ui/core/TableCell";
+import TableContainer from "@material-ui/core/TableContainer";
+import TableHead from "@material-ui/core/TableHead";
+import TableRow from "@material-ui/core/TableRow";
+import Paper from "@material-ui/core/Paper";
+import DeleteIcon from "@material-ui/icons/DeleteOutline";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -62,6 +70,16 @@ const useStyles = makeStyles(theme => ({
   container: {
     position: "absolute",
     height: "50%",
+    display: "flex",
+    flexDirection: "column",
+    top: 65,
+    left: 25,
+    right: 25,
+    padding: 0,
+  },
+  ReportContainer: {
+    position: "absolute",
+    height: "80%",
     display: "flex",
     flexDirection: "column",
     top: 65,
@@ -142,6 +160,30 @@ const useStyles = makeStyles(theme => ({
       alignItems: "end",
     },
   },
+  reportButton: {
+    backgroundColor: "#faebd7",
+    color: "#000",
+  },
+  table: {
+    minWidth: "100%",
+    width: "100%",
+  },
+  delete: {
+    padding: 0,
+    "&:hover": {
+      color: "red",
+    },
+  },
+  noPadding: {
+    padding: theme.spacing(1),
+  },
+  tableComponent: {
+    // overflow: "auto",
+    height: "100%",
+  },
+  headText: {
+    fontWeight: 400,
+  },
 }));
 
 export default function LoginComponent({
@@ -153,6 +195,7 @@ export default function LoginComponent({
 }) {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
+  const [openReport, setOpenReport] = useState(false);
   const [passwordVisible, setPasswordVisible] = useState(false);
   const [errors, setErrors] = useState("");
   const [yearErrors, setYearErrors] = useState("");
@@ -160,13 +203,23 @@ export default function LoginComponent({
   const [createYear, setCreateYear] = useState("");
   const [password, setPassword] = useState("");
   const [email, setEmail] = useState("");
+  const [reports, setReports] = useState([]);
 
   const handleClose = () => {
     setOpen(false);
   };
 
+  const handleReportClose = () => {
+    setOpenReport(false);
+  };
+
   const handleOpen = () => {
     setOpen(true);
+  };
+
+  const handleOpenReport = () => {
+    handleClose();
+    getReports();
   };
 
   const handleYear = event => {
@@ -232,6 +285,36 @@ export default function LoginComponent({
       checkData(data);
     }
   };
+
+  const handleDelete = id => {
+    closeSnackbar();
+    axios
+      .delete("reports/" + id)
+      .then(result => {
+        if (result.data.success) {
+          enqueueSnackbar("Report deleted", { variant: "success" });
+          getReports();
+        } else {
+          enqueueSnackbar("Failed to delete report", { variant: "error" });
+        }
+      })
+      .catch(error => {
+        enqueueSnackbar("Error Occurred", { variant: "error" });
+        console.log(error);
+      });
+  };
+
+  async function getReports() {
+    await axios
+      .get("reports")
+      .then(res => {
+        setReports(res.data);
+        setOpenReport(true);
+      })
+      .catch(error => {
+        console.log(error);
+      });
+  }
 
   const handleLogout = () => {
     closeSnackbar();
@@ -398,6 +481,15 @@ export default function LoginComponent({
             </Button>
           </div>
         </div>
+        <div>
+          <Button
+            size="small"
+            color="primary"
+            className={classes.reportButton}
+            onClick={handleOpenReport}>
+            Open Reports
+          </Button>
+        </div>
       </div>
       <div className={classes.buttonDiv}>
         <Button
@@ -407,6 +499,93 @@ export default function LoginComponent({
           onClick={handleLogout}>
           Logout
         </Button>
+      </div>
+    </div>
+  );
+
+  const report = (
+    <div className={classes.paper}>
+      <div clasName={classes.header}>
+        <Typography
+          component="h1"
+          variant="h6"
+          color="inherit"
+          id="simple-modal-title"
+          noWrap
+          className={classes.headerTitle}>
+          Reports
+        </Typography>
+        <CloseIcon
+          className={classes.closeButton}
+          onClick={handleReportClose}
+        />
+      </div>
+      <div className={classes.divider}>
+        <Divider />
+      </div>
+      <div id="simple-modal-description" className={classes.ReportContainer}>
+        <TableContainer component={Paper} className={classes.tableComponent}>
+          <Table className={classes.table} aria-label="simple table">
+            <TableHead>
+              <TableRow>
+                <TableCell>
+                  <Typography
+                    component="h1"
+                    variant="h6"
+                    color="inherit"
+                    id="simple-modal-title"
+                    noWrap
+                    className={classes.headText}>
+                    Name
+                  </Typography>
+                </TableCell>
+                <TableCell align="right">
+                  <Typography
+                    component="h1"
+                    variant="h6"
+                    color="inherit"
+                    id="simple-modal-title"
+                    noWrap
+                    className={classes.headText}>
+                    Year
+                  </Typography>
+                </TableCell>
+                <TableCell align="right">
+                  <Typography
+                    component="h1"
+                    variant="h6"
+                    color="inherit"
+                    id="simple-modal-title"
+                    noWrap
+                    className={classes.headText}>
+                    Message
+                  </Typography>
+                </TableCell>
+                <TableCell align="right"></TableCell>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {reports.map((report, index) => (
+                <TableRow key={index}>
+                  <TableCell component="th" scope="row">
+                    {report.name}
+                  </TableCell>
+                  <TableCell align="right">{report.year}</TableCell>
+                  <TableCell align="right">{`${report.message.substring(
+                    0,
+                    10
+                  )}...`}</TableCell>
+                  <TableCell align="right" className={classes.noPadding}>
+                    <DeleteIcon
+                      className={classes.delete}
+                      onClick={() => handleDelete(report._id)}
+                    />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       </div>
     </div>
   );
@@ -436,6 +615,16 @@ export default function LoginComponent({
           aria-labelledby="simple-modal-title"
           aria-describedby="simple-modal-description">
           {body}
+        </Modal>
+      )}
+
+      {openReport && (
+        <Modal
+          open={openReport}
+          onClose={handleReportClose}
+          aria-labelledby="simple-modal-title"
+          aria-describedby="simple-modal-description">
+          {report}
         </Modal>
       )}
     </>

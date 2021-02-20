@@ -155,49 +155,49 @@ export default function ReportDrawer({ open, setOpen, card }) {
   };
 
   const clearFields = () => {
-    setValues({
-      name: "",
-      message: "",
-    });
+    setReason("");
   };
 
-  // async function EditData(data) {
-  //   closeSnackbar();
-  //   if (data !== null) {
-  //     axios
-  //       .put("cards/" + card._id, data)
-  //       .then(result => {
-  //         if (result.data.success) {
-  //           setErrors("");
-  //           handleClose();
-  //           clearFields();
-  //           enqueueSnackbar("Card Updated", { variant: "success" });
-  //           getCards();
-  //         } else {
-  //           enqueueSnackbar("An Error Occurred", { variant: "error" });
-  //         }
-  //       })
-  //       .catch(error => {
-  //         enqueueSnackbar("Failure to update", { variant: "error" });
-  //         console.log(error);
-  //       });
-  //   }
-  // }
+  async function SendData() {
+    closeSnackbar();
+    const data = {
+      name: values.name,
+      message: values.message,
+      year: card.year,
+      card_id: card._id,
+      reason: reason,
+    };
 
-  // const handleUpdate = () => {
-  //   if (values.name === "" || values.message === "") {
-  //     setErrors("Please fill all the camps");
-  //   } else {
-  //     setErrors("");
-  //     const data = {
-  //       userName: values.name,
-  //       message: values.message,
-  //       year: card.year,
-  //     };
-
-  //     EditData(data);
-  //   }
-  // };
+    if (data.reason === "") {
+      setErrors("Please type a reason");
+    } else {
+      if (
+        data.name !== "" ||
+        data.message !== "" ||
+        data.year !== "" ||
+        data.card_id !== ""
+      ) {
+        axios
+          .post("reports/", data)
+          .then(result => {
+            if (result.data.success) {
+              setErrors("");
+              handleClose();
+              clearFields();
+              enqueueSnackbar("Report sent", { variant: "success" });
+            } else {
+              enqueueSnackbar("An Error Occurred", { variant: "error" });
+            }
+          })
+          .catch(error => {
+            enqueueSnackbar("Failure to report", { variant: "error" });
+            console.log(error);
+          });
+      } else {
+        enqueueSnackbar("Report not sent", { variant: "error" });
+      }
+    }
+  }
 
   const body = (
     <div className={classes.paper}>
@@ -260,8 +260,7 @@ export default function ReportDrawer({ open, setOpen, card }) {
           size="small"
           color="primary"
           className={classes.button}
-          // onClick={handleUpdate}
-        >
+          onClick={SendData}>
           Send
         </Button>
       </div>
