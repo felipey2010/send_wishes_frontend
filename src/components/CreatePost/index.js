@@ -55,6 +55,7 @@ const useStyles = makeStyles(theme => ({
     position: "absolute",
     height: "55%",
     display: "flex",
+    overflowY: "auto",
     flexDirection: "column",
     top: 65,
     left: 25,
