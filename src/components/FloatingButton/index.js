@@ -36,20 +36,16 @@ const useStyles = makeStyles(theme => ({
 
 export default function FloatingButton({ getCards }) {
   const classes = useStyles();
-  const [modal, setModal] = useState(false);
+  const [open, setOpen] = useState(false);
 
-  function handleButtonClick() {
-    setModal(true);
+  function handleOpen() {
+    setOpen(true);
   }
-
-  const handleCloseModal = () => {
-    setModal(false);
-  };
 
   return (
     <React.Fragment>
-      {modal ? null : (
-        <div className={classes.root} onClick={handleButtonClick}>
+      {open === false && (
+        <div className={classes.root} onClick={handleOpen}>
           <Bounce>
             <Tooltip title="Add Card" placement="left">
               <Fab className={classes.fab} aria-label="add">
@@ -59,13 +55,7 @@ export default function FloatingButton({ getCards }) {
           </Bounce>
         </div>
       )}
-      {modal && (
-        <CreatePost
-          modal={modal}
-          close={handleCloseModal}
-          getCards={getCards}
-        />
-      )}
+      {open && <CreatePost open={open} setOpen={setOpen} getCards={getCards} />}
     </React.Fragment>
   );
 }

@@ -1,6 +1,4 @@
-import React, { useState, useEffect } from "react";
-import axios from "axios";
-import { useSnackbar } from "notistack";
+import React, { useState } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Modal from "@material-ui/core/Modal";
 import CloseIcon from "@material-ui/icons/Close";
@@ -8,6 +6,8 @@ import Divider from "@material-ui/core/Divider";
 import Typography from "@material-ui/core/Typography";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
+import { useSnackbar } from "notistack";
+import axios from "axios";
 
 const useStyles = makeStyles(theme => ({
   root: {
@@ -108,6 +108,9 @@ const useStyles = makeStyles(theme => ({
   },
   text: {
     marginBottom: 8,
+    display: "flex",
+    width: "100%",
+    flexWrap: "wrap",
   },
   buttonDiv: {
     position: "absolute",
@@ -125,100 +128,71 @@ const useStyles = makeStyles(theme => ({
       transition: "transform 0.1s",
     },
   },
-  rowDiv: {
-    display: "flex",
-    flexDirection: "row",
-    justifyContent: "space-between",
-    alignItems: "center",
-    [theme.breakpoints.down("xs")]: {
-      flexDirection: "column",
-      alignItems: "end",
-    },
-  },
-  message: {
-    display: "flex",
-    flexWrap: "wrap",
-    justifyContent: "center",
-  },
-  welcome: {
-    display: "flex",
-    justifyContent: "center",
-  },
 }));
 
-export default function CreatePost({ open, setOpen, getCards }) {
+export default function ActionComponent({ open, setOpen, card, getCards }) {
   const classes = useStyles();
-  const [values, setValues] = useState({
-    name: "",
-    message: "",
-  });
-  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
   const [errors, setErrors] = useState("");
-  const [currentYear, setCurrentYear] = useState("");
-
-  const showSuccessMessage = () => {
-    enqueueSnackbar("Card Added");
-  };
-
-  const showFailureMessage = () => {
-    enqueueSnackbar("Failed to Add Card");
-  };
+  const { enqueueSnackbar, closeSnackbar } = useSnackbar();
+  const [values, setValues] = useState({
+    name: card.userName,
+    message: card.message,
+  });
 
   const handleClose = () => {
     setOpen(false);
   };
-
-  const apiPost = "cards";
-
-  async function AddCard() {
-    closeSnackbar();
-    const params = {
-      userName: values.name,
-      message: values.message,
-      year: currentYear,
-    };
-    axios
-      .post(apiPost, params)
-      .then(result => {
-        if (result.data.success) {
-          setValues({
-            name: "",
-            message: "",
-          });
-          handleClose();
-          showSuccessMessage();
-          getCards();
-        } else {
-          showFailureMessage();
-        }
-      })
-      .catch(error => {
-        showFailureMessage();
-        console.log(error);
-      });
-  }
-
-  function handlePost() {
-    if (values.name.length >= 3 && values.message.length >= 6) {
-      AddCard();
-    } else {
-      if (values.name.length <= 2 || values.message.length <= 5) {
-        setErrors("Name must be > 3 letters and message > 6 letters");
-      }
-    }
-  }
-
-  useEffect(() => {
-    let dateYear = new Date().getFullYear();
-    dateYear = dateYear.toString();
-    setCurrentYear(dateYear);
-  }, []);
 
   const handleChange = event => {
     setValues({
       ...values,
       [event.target.name]: event.target.value,
     });
+  };
+
+  const clearFields = () => {
+    setValues({
+      name: "",
+      message: "",
+    });
+  };
+
+  async function EditData(data) {
+    closeSnackbar();
+    if (data !== null) {
+      axios
+        .put("cards/" + card._id, data)
+        .then(result => {
+          if (result.data.success) {
+            setErrors("");
+            handleClose();
+            clearFields();
+            enqueueSnackbar("Card Updated", { variant: "success" });
+            getCards();
+          } else {
+            enqueueSnackbar("An Error Occurred", { variant: "error" });
+          }
+        })
+        .catch(error => {
+          enqueueSnackbar("Failure to update", { variant: "error" });
+          console.log(error);
+        });
+    }
+  }
+
+  const handleUpdate = () => {
+    if (values.name === "" || values.message === "") {
+      setErrors("Please fill all the camps");
+    } else {
+      setErrors("");
+      const data = {
+        userName: values.name,
+        message: values.message,
+        year: card.year,
+      };
+
+      EditData(data);
+    }
   };
 
   const body = (
@@ -231,7 +205,7 @@ export default function CreatePost({ open, setOpen, getCards }) {
           id="simple-modal-title"
           noWrap
           className={classes.headerTitle}>
-          Create A Message
+          Edit Card
         </Typography>
         <CloseIcon className={classes.closeButton} onClick={handleClose} />
       </div>
@@ -239,41 +213,28 @@ export default function CreatePost({ open, setOpen, getCards }) {
         <Divider />
       </div>
       <div id="simple-modal-description" className={classes.container}>
-        <div className={classes.message}>
-          <div>
-            <Typography
-              component="h1"
-              variant="h6"
-              color="inherit"
-              id="simple-modal-title"
-              className={classes.welcome}>
-              Welcome...Please keep your message simple and clean for the public
-            </Typography>
-          </div>
-        </div>
-        <div>
-          <p className={classes.errors}>{errors}</p>
-        </div>
+        <p className={classes.errors}>{errors}</p>
         <TextField
-          id="standard-basic-email"
+          id="standard-basic-name"
           className={classes.text}
           required
-          type="text"
           name="name"
-          label="Your Name"
+          label="Name"
+          rowsMax={2}
+          multiline
+          autoComplete="off"
           value={values.name}
           onChange={handleChange}
         />
         <TextField
-          id="standard-basic-password"
+          id="standard-basic-message"
           className={classes.text}
           required
           name="message"
-          label="Your Message"
-          type="text"
-          autoComplete="off"
+          label="Message"
+          rowsMax={4}
           multiline
-          rowsMax={3}
+          autoComplete="off"
           value={values.message}
           onChange={handleChange}
         />
@@ -283,20 +244,22 @@ export default function CreatePost({ open, setOpen, getCards }) {
           size="small"
           color="primary"
           className={classes.button}
-          onClick={handlePost}>
-          Post
+          onClick={handleUpdate}>
+          Update
         </Button>
       </div>
     </div>
   );
 
   return (
-    <Modal
-      open={open}
-      onClose={handleClose}
-      aria-labelledby="simple-modal-title"
-      aria-describedby="simple-modal-description">
-      {body}
-    </Modal>
+    <>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="simple-modal-title"
+        aria-describedby="simple-modal-description">
+        {body}
+      </Modal>
+    </>
   );
 }
